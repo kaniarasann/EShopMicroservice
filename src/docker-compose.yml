@@ -1,0 +1,9 @@
+services:
+  catalogdb:
+    image: postgres
+  pgadmin:
+    image: elestio/pgadmin
+
+volumes:
+  postgres_catalog:
+        
