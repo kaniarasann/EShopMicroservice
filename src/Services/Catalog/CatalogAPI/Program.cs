@@ -1,4 +1,3 @@
-using CatalogAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +21,8 @@ if (builder.Environment.IsDevelopment())
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("Database")!);
 
 var app = builder.Build();
 
@@ -31,6 +31,8 @@ app.MapCarter();
 //Say we rely on the custom comfigured exception
 app.UseExceptionHandler(opt => { });
 
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health", new HealthCheckOptions { 
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 app.Run();

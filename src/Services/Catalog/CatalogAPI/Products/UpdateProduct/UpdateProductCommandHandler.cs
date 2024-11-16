@@ -1,8 +1,4 @@
-﻿
-using CatalogAPI.Exceptions;
-using FluentValidation;
-
-namespace CatalogAPI.Products.UpdateProduct
+﻿namespace CatalogAPI.Products.UpdateProduct
 {
     public record UpdateProductCommand(Guid Id,string Name, string Description, string ImageFile, decimal Price, List<string> Category):ICommand<UpdateProductResult>;
 
