@@ -10,6 +10,17 @@ services:
         - "5432:5432"
     volumes:
       - postgres_catalog:/var/lib/postgresql/data/
+  basketdb:
+    container_name: basketdb
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=basketDb
+    restart: always
+    ports:
+        - "5433:5432"
+    volumes:
+      - postgres_basket:/var/lib/postgresql/data/
   pgadmin:
     container_name: pgadmin
     restart: always
@@ -21,6 +32,11 @@ services:
         - "8080:8080"
     volumes:
         - ./servers.json:/pgadmin4/servers.json
+  redisdb:
+    container_name: redisdb
+    restart: always
+    ports:
+        - "6379:6379"
 
   catalogapi:
     environment:
@@ -33,6 +49,23 @@ services:
     ports:
       - "6000:8080"
       - "6060:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+
+  basketapi:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__Database=Server=basketdb;Port=5432;Database=basketDb;Username=postgres;Password=postgres;Include Error Detail = true
+      - ConnectionStrings__redisConn=redisdb:6379
+    depends_on:
+      - basketdb
+      - redisdb 
+    ports:
+      - "6001:8080"
+      - "6061:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro

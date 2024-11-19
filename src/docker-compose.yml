@@ -1,6 +1,10 @@
 services:
   catalogdb:
     image: postgres
+  basketdb:
+    image: postgres
+  redisdb:
+    image: redis
   pgadmin:
     image: elestio/pgadmin
 
@@ -10,6 +14,14 @@ services:
       context: .
       dockerfile: Services/Catalog/CatalogAPI/Dockerfile
 
+  basketapi:
+    image: ${DOCKER_REGISTRY-}basketapi
+    build:
+      context: .
+      dockerfile: Services/Basket/BasketAPI/Dockerfile
+
 volumes:
   postgres_catalog:
+  postgres_basket:
         
+
