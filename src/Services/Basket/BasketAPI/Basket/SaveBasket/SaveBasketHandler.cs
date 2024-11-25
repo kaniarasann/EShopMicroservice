@@ -1,5 +1,6 @@
 ﻿
 using BasketAPI.Data;
+using DiscountGRPC.Protos;
 
 namespace BasketAPI.Basket.SaveBasket
 {
@@ -17,11 +18,19 @@ namespace BasketAPI.Basket.SaveBasket
         }
     }
 
-    public class SaveBasketCommandHandler(IBasketRepository basket) : ICommandHandler<SaveBasketCommand, SaveBasketResult>
+    public class SaveBasketCommandHandler(IBasketRepository basket,DiscountProtoService.DiscountProtoServiceClient discountGrpc) : ICommandHandler<SaveBasketCommand, SaveBasketResult>
     {
         public async Task<SaveBasketResult> Handle(SaveBasketCommand request, CancellationToken cancellationToken)
         {
-           var response = await basket.SaveShoppingCart(request.cart, cancellationToken);
+            foreach (ShoppingCartItem item in request.cart.Items)
+            {
+              var disamt = await discountGrpc.GetDiscountAsync( new GetDiscountRequest() { ProductName = item.ProductName } );
+              item.Price = item.Price - disamt.Amount;
+            }
+
+            request.cart.TotalPrice = request.cart.Items.Sum(x => x.Price);
+
+            var response = await basket.SaveShoppingCart(request.cart, cancellationToken);
            return new SaveBasketResult(response.UserName);
         }
     }

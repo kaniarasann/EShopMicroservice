@@ -1,5 +1,7 @@
 ﻿
 
+using DiscountGRPC.Protos;
+
 var builder = WebApplication.CreateBuilder(args);
 
 TypeAdapterConfig<SaveBasketRequest, SaveBasketCommand>.NewConfig()
@@ -37,6 +39,10 @@ builder.Services.Decorate<IBasketRepository,CacheBasketRepository>();
 builder.Services.AddHealthChecks()
     .AddNpgSql(builder.Configuration.GetConnectionString("Database")!)
     .AddRedis(builder.Configuration.GetConnectionString("redisConn")!);
+
+builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(opts => {
+    opts.Address = new Uri(builder.Configuration["GrpcSettings:DiscountUrl"]);
+});
 
 var app = builder.Build();
 
